@@ -9,7 +9,10 @@ c = conn.cursor()
 many_items = [
     ('Christoph', 'Smith', 'chris@gmail.com'),
     ('Robert', 'Simons', 'robert@gmail.com'),
-    ('The Giant', 'Rock', 'therock@gmail.com')
+    ('The Giant', 'Rock', 'therock@gmail.com'),
+    ('Tim', 'Smith', 'timsmith@gmail.com'),
+    ('Mary', 'Brown', 'marybrown@gmail.com'),
+    ('Chris', 'Hennings', 'hennings@gmail.com')
 ]
 
 # Insert one record
