@@ -10,9 +10,9 @@ list_records = [
     ('Joshua', 'Raintree', 'josh@rain.com')
 
 ]
-# connection.add_many(list_records)
+connection.add_many(list_records)
 
-connection.email_lookup('timsmith@gmail.com')
+connection.email_lookup('brenda@smith.com')
 
 # connection.show_all()
 
