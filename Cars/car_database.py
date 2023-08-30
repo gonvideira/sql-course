@@ -4,7 +4,7 @@ import json
 class CarDatabase():
     """Class to hold functions for the car database"""
     
-    db_connection = sqlite3.connect('car.db')
+    db_connection = sqlite3.connect('car_database.db')
     db_cursor = db_connection.cursor()
 
     def create_table_cars(self):
@@ -20,6 +20,7 @@ class CarDatabase():
                 car_fuel TEXT,
                 car_engine_power INTEGER,
                 car_engine_capacity INTEGER,
+                car_type TEXT,
                 UNIQUE (car_make,car_model,car_version,car_transmission)
                 )
             """
@@ -51,7 +52,8 @@ class CarDatabase():
                 car_ad_age REAL,
                 car_ad_mileage INT,
                 car_ad_warranty INT,
-                car_ad_origin TEXT
+                car_ad_origin TEXT,
+                FOREIGN KEY (car_id) REFERENCES cars(car_id) ON DELETE CASCADE
                 )
             """
         )
@@ -86,12 +88,21 @@ class CarDatabase():
                 if 'car_engine_capacity' not in record:
                     record['car_engine_capacity'] = 'not available'
                 self.db_cursor.execute(
-                    'INSERT OR IGNORE INTO cars (car_make, car_version, car_model, car_fuel, car_engine_power, car_engine_capacity, car_transmission) '
-                    'VALUES (:car_make, :car_version, :car_model, :car_fuel, :car_engine_power, :car_engine_capacity, :car_transmission)',
+                    'INSERT OR IGNORE INTO cars (car_make, car_version, car_model, car_fuel, car_engine_power, car_engine_capacity, car_transmission, car_type) '
+                    'VALUES (:car_make, :car_version, :car_model, :car_fuel, :car_engine_power, :car_engine_capacity, :car_transmission, :car_type)',
                     record
                 )
         print('Records added to Database!')
         self.db_connection.commit()
+
+    def add_car_ads(self):
+        """Function that ads cars"""
+
+        """Runs after adding cars to the table cars;
+        Needs to get car_id from the cars table for each row; 
+        inserts ad with OR IGNORE clause if same car_ad_id;"""
+
+        print('Work in progress...')
 
     def show_all(self):
         """Show all records"""
