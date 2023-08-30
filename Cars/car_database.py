@@ -16,9 +16,11 @@ class CarDatabase():
                 car_make TEXT,
                 car_model TEXT,
                 car_version TEXT,
+                car_transmission TEXT,
                 car_fuel TEXT,
                 car_engine_power INTEGER,
-                UNIQUE (car_make,car_model,car_version)
+                car_engine_capacity INTEGER,
+                UNIQUE (car_make,car_model,car_version,car_transmission)
                 )
             """
         )
@@ -48,7 +50,8 @@ class CarDatabase():
                 car_ad_month INT,
                 car_ad_age REAL,
                 car_ad_mileage INT,
-                car_ad_warranty INT
+                car_ad_warranty INT,
+                car_ad_origin TEXT
                 )
             """
         )
@@ -77,10 +80,14 @@ class CarDatabase():
             json_string = json.load(file)
             for record in json_string:
                 if 'car_version' not in record:
-                    record['car_version'] = 'na'
+                    record['car_version'] = 'not available'
+                if 'car_transmission' not in record:
+                    record['car_transmission'] = 'not available'
+                if 'car_engine_capacity' not in record:
+                    record['car_engine_capacity'] = 'not available'
                 self.db_cursor.execute(
-                    'INSERT OR IGNORE INTO cars (car_make, car_version, car_model, car_fuel, car_engine_power) '
-                    'VALUES (:car_make, :car_version, :car_model, :car_fuel, :car_engine_power)',
+                    'INSERT OR IGNORE INTO cars (car_make, car_version, car_model, car_fuel, car_engine_power, car_engine_capacity, car_transmission) '
+                    'VALUES (:car_make, :car_version, :car_model, :car_fuel, :car_engine_power, :car_engine_capacity, :car_transmission)',
                     record
                 )
         print('Records added to Database!')
