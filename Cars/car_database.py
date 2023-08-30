@@ -14,10 +14,11 @@ class CarDatabase():
                 CREATE TABLE cars (
                 car_id INTEGER PRIMARY KEY ASC AUTOINCREMENT,
                 car_make TEXT,
-                car_version TEXT DEFAULT 'no version',
                 car_model TEXT,
+                car_version TEXT,
                 car_fuel TEXT,
-                car_engine_power INTEGER
+                car_engine_power INTEGER,
+                UNIQUE (car_make,car_model,car_version)
                 )
             """
         )
@@ -74,11 +75,25 @@ class CarDatabase():
         """Function that ads records to key tables from json file"""
         with open(json_file, 'r', encoding='utf-8') as file:
             json_string = json.load(file)
-            self.db_cursor.executemany(
-                'INSERT OR IGNORE INTO cars (car_make, car_version, car_model, car_fuel, car_engine_power) '
-                'VALUES (:car_make, :car_version, :car_model, :car_fuel, :car_engine_power)',
-                json_string
-            )
+            for record in json_string:
+                if 'car_version' not in record:
+                    record['car_version'] = 'na'
+                self.db_cursor.execute(
+                    'INSERT OR IGNORE INTO cars (car_make, car_version, car_model, car_fuel, car_engine_power) '
+                    'VALUES (:car_make, :car_version, :car_model, :car_fuel, :car_engine_power)',
+                    record
+                )
+        print('Records added to Database!')
+        self.db_connection.commit()
+
+    def show_all(self):
+        """Show all records"""
+        query_string = ('SELECT * FROM cars')
+        self.db_cursor.execute(query_string)
+        records = self.db_cursor.fetchall()
+        for record in records:
+            print(record)
+
 
     def close_connection(self):
         """Needed to invoke close connection"""
