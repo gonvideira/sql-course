@@ -69,6 +69,7 @@ class CarDatabase():
                 car_ad_id INT,
                 car_modified TEXT,
                 car_price_value INT,
+                FOREIGN KEY (car_ad_id) REFERENCES ads(car_ad_id) ON DELETE CASCADE
                 )
             """
         )
@@ -88,25 +89,93 @@ class CarDatabase():
                 if 'car_engine_capacity' not in record:
                     record['car_engine_capacity'] = 'not available'
                 self.db_cursor.execute(
-                    'INSERT OR IGNORE INTO cars (car_make, car_version, car_model, car_fuel, car_engine_power, car_engine_capacity, car_transmission, car_type) '
-                    'VALUES (:car_make, :car_version, :car_model, :car_fuel, :car_engine_power, :car_engine_capacity, :car_transmission, :car_type)',
+                    'INSERT OR IGNORE INTO cars ('
+                    'car_make, car_version, car_model, car_fuel, car_engine_power, car_engine_capacity, car_transmission, car_type'
+                    ') '
+                    'VALUES ('
+                    ':car_make, :car_version, :car_model, :car_fuel, :car_engine_power, :car_engine_capacity, :car_transmission, :car_type'
+                    ')',
                     record
                 )
-        print('Records added to Database!')
+        print('Record CARS added to Database!')
         self.db_connection.commit()
 
-    def add_car_ads(self):
-        """Function that ads cars"""
+    def add_car_ads(self,json_file):
+        """Function that ads car ads"""
+        with open(json_file, 'r', encoding='utf-8') as file:
+            json_string = json.load(file)
+            for record in json_string:
+                if 'car_version' not in record:
+                    record['car_version'] = 'not available'
+                if 'car_transmission' not in record:
+                    record['car_transmission'] = 'not available'
+                if 'car_engine_capacity' not in record:
+                    record['car_engine_capacity'] = 'not available'
+                if 'car_origin' not in record:
+                    record['car_origin'] = 'not available'
+                if 'car_badges' not in record:
+                    record['car_warranty'] = 'no warranty'
+                    record['car_badges'] = 'not available'
+                elif 'WARRANTY' in record['car_badges']:
+                    record['car_warranty'] = 'warranty'
+                    record['car_badges'] = ';'.join(record['car_badges'])
+                else:
+                    record['car_warranty'] = 'no warranty'
+                    record['car_badges'] = ';'.join(record['car_badges'])
 
-        """Runs after adding cars to the table cars;
-        Needs to get car_id from the cars table for each row; 
-        inserts ad with OR IGNORE clause if same car_ad_id;"""
+                self.db_cursor.execute(
+                    'INSERT OR REPLACE INTO ads ('
+                    'car_id, car_ad_id, car_ad_title, car_ad_created, car_ad_modified, '
+                    'car_ad_days, car_ad_shortDescription, car_ad_url, '
+                    'car_ad_loc_region, car_ad_loc_city, car_ad_price_value, '
+                    'car_ad_price_currency, car_ad_year, car_ad_month, '
+                    'car_ad_age, car_ad_mileage, car_ad_origin, car_ad_warranty, car_ad_badges'
+                    ') '
+                    'VALUES ('
+                    '(SELECT car_id FROM cars WHERE car_make = :car_make '
+                    'AND car_model = :car_model AND car_version  = :car_version '
+                    'AND car_transmission = :car_transmission),'
+                    ':car_id, :car_title, :car_created, :car_modified, '
+                    ':car_ad_days, :car_shortDescription, :car_url, '
+                    ':car_loc_region, :car_loc_city, :car_price_value, '
+                    ':car_price_currency, :car_first_registration, :car_first_registration_month, '
+                    ':car_age, :car_mileage, :car_origin, :car_warranty, :car_badges'
+                    ')',
+                    record
+                )
+        print('Record ADS added to Database!')
+        self.db_connection.commit()
 
-        print('Work in progress...')
+    def add_car_prices(self,json_file):
+        """Function to add prices to the prices table"""
+        with open(json_file, 'r', encoding='utf-8') as file:
+            json_string = json.load(file)
+            for record in json_string:
+                self.db_cursor.execute(
+                    'INSERT INTO prices ('
+                    'car_ad_id, car_modified, car_price_value'
+                    ') '
+                    'VALUES ('
+                    ':car_id, :car_modified, :car_price_value'
+                    ')',
+                    record
+                )
+        
+        print('Record PRICES added to Database!')
+        self.db_connection.commit()
 
-    def show_all(self):
+    def update_db(self,json_file):
+        """Function that calls the functions to update the database"""
+        self.add_cars(json_file)
+        self.add_car_prices(json_file)
+        self.add_car_ads(json_file)
+        print('Database updated!')
+
+# db_connection.add_car_prices('cars.json')
+
+    def show_all(self, table_name):
         """Show all records"""
-        query_string = ('SELECT * FROM cars')
+        query_string = (f'SELECT * FROM {table_name}')
         self.db_cursor.execute(query_string)
         records = self.db_cursor.fetchall()
         for record in records:
