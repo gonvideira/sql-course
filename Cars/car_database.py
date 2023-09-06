@@ -1,9 +1,9 @@
+"""Module for working with SQLite databases"""
 import sqlite3
 import json
 
 class CarDatabase():
     """Class to hold functions for the car database"""
-    
     db_connection = sqlite3.connect('car_database.db')
     db_cursor = db_connection.cursor()
 
@@ -90,10 +90,12 @@ class CarDatabase():
                     record['car_engine_capacity'] = 'not available'
                 self.db_cursor.execute(
                     'INSERT OR IGNORE INTO cars ('
-                    'car_make, car_version, car_model, car_fuel, car_engine_power, car_engine_capacity, car_transmission, car_type'
+                    'car_make, car_version, car_model, car_fuel, car_engine_power, '
+                    'car_engine_capacity, car_transmission, car_type'
                     ') '
                     'VALUES ('
-                    ':car_make, :car_version, :car_model, :car_fuel, :car_engine_power, :car_engine_capacity, :car_transmission, :car_type'
+                    ':car_make, :car_version, :car_model, :car_fuel, :car_engine_power, '
+                    ':car_engine_capacity, :car_transmission, :car_type'
                     ')',
                     record
                 )
@@ -159,8 +161,7 @@ class CarDatabase():
                     ':car_id, :car_modified, :car_price_value'
                     ')',
                     record
-                )
-        
+                )       
         print('Record PRICES added to Database!')
         self.db_connection.commit()
 
@@ -171,11 +172,9 @@ class CarDatabase():
         self.add_car_ads(json_file)
         print('Database updated!')
 
-# db_connection.add_car_prices('cars.json')
-
     def show_all(self, table_name):
         """Show all records"""
-        query_string = (f'SELECT * FROM {table_name}')
+        query_string = f'SELECT * FROM {table_name}'
         self.db_cursor.execute(query_string)
         records = self.db_cursor.fetchall()
         for record in records:
