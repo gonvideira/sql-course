@@ -7,8 +7,8 @@ db_connection = CarDatabase()
 # db_connection.create_table_ads()
 # db_connection.create_table_prices()
 
-db_connection.update_db('cars.json')
+db_connection.update_db('Cars/cars.json')
 
-db_connection.show_all('ads')
+db_connection.show_all('cars')
 
 db_connection.close_connection()
